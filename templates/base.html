@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Hackathon Trip Reservation{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-logo">
+        <span class="bus-icon">🚌</span>
+        <div>
+          <span class="header-title">Hackathon Bus</span>
+          <span class="header-sub">Seat Reservation System</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">Home</a>
+        <a href="{{ url_for('reserve') }}" class="nav-link {% if request.endpoint == 'reserve' %}active{% endif %}">Reserve a Seat</a>
+        {% if session.get('admin') %}
+          <a href="{{ url_for('admin_dashboard') }}" class="nav-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">Admin Panel</a>
+          <a href="{{ url_for('admin_logout') }}" class="nav-link nav-logout">Logout</a>
+        {% else %}
+          <a href="{{ url_for('admin_login') }}" class="nav-link {% if request.endpoint == 'admin_login' %}active{% endif %}">Admin Login</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Page content -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <p>IT-4320 Final Project &nbsp;|&nbsp; Hackathon Trip Reservation System</p>
+  </footer>
+
+</body>
+</html>
