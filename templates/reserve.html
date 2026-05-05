@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Reserve a Seat{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <h1 class="page-title">🎫 Reserve Your Seat</h1>
+  <p class="page-sub">Fill in your details and pick an available seat. Green = open, Red = taken.</p>
+
+  <!-- Error list -->
+  {% if errors %}
+  <div class="error-box">
+    <strong>Please fix the following:</strong>
+    <ul>
+      {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div class="reserve-layout">
+
+    <!-- ── Seating chart ── -->
+    <div class="chart-panel">
+      <h2 class="panel-heading">Seating Chart</h2>
+
+      <!-- Legend -->
+      <div class="chart-legend">
+        <span class="legend-dot available"></span> Available
+        <span class="legend-dot taken"></span> Taken
+      </div>
+
+      <!-- Column headers -->
+      <div class="seat-grid">
+        <div class="row-header"></div>
+        {% for col in col_labels %}
+        <div class="col-header">
+          {{ col }}
+          <div class="col-price">${{ cost_matrix[0][loop.index0] }}</div>
+        </div>
+        {% endfor %}
+
+        {% for row in range(12) %}
+          <!-- Row label -->
+          <div class="row-header">{{ row + 1 }}</div>
+
+          {% for col in range(4) %}
+            {% if (row, col) in taken %}
+              <div class="seat taken" title="Seat {{ row+1 }}{{ col_labels[col] }} — Taken">
+                {{ row+1 }}{{ col_labels[col] }}
+              </div>
+            {% else %}
+              <div class="seat available" title="Seat {{ row+1 }}{{ col_labels[col] }} — ${{ cost_matrix[row][col] }}">
+                {{ row+1 }}{{ col_labels[col] }}
+              </div>
+            {% endif %}
+
+            <!-- Aisle gap between B (col 1) and C (col 2) -->
+            {% if col == 1 %}
+              <div class="aisle"></div>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ── Reservation form ── -->
+    <div class="form-panel">
+      <h2 class="panel-heading">Your Information</h2>
+      <form method="POST" action="{{ url_for('reserve') }}" class="res-form" novalidate>
+
+        <div class="form-group">
+          <label for="first_name">First Name</label>
+          <input type="text" id="first_name" name="first_name"
+                 value="{{ form.get('first_name', '') }}"
+                 placeholder="e.g. Jane" required>
+        </div>
+
+        <div class="form-group">
+          <label for="last_name">Last Name</label>
+          <input type="text" id="last_name" name="last_name"
+                 value="{{ form.get('last_name', '') }}"
+                 placeholder="e.g. Smith" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="seat_row">Row (1–12)</label>
+            <input type="number" id="seat_row" name="seat_row" min="1" max="12"
+                   value="{{ form.get('seat_row', '') }}"
+                   placeholder="1-12" required>
+          </div>
+
+          <div class="form-group half">
+            <label for="seat_col">Column (A–D)</label>
+            <input type="text" id="seat_col" name="seat_col" maxlength="1"
+                   value="{{ form.get('seat_col', '') }}"
+                   placeholder="A, B, C, or D" required>
+          </div>
+        </div>
+
+        <!-- Pricing reminder -->
+        <div class="price-reminder">
+          <table class="price-table">
+            <thead><tr><th>Col A</th><th>Col B</th><th>Col C</th><th>Col D</th></tr></thead>
+            <tbody><tr><td>$100</td><td>$75</td><td>$50</td><td>$100</td></tr></tbody>
+          </table>
+        </div>
+
+        <button type="submit" class="btn-primary">Reserve My Seat →</button>
+      </form>
+    </div>
+
+  </div><!-- /reserve-layout -->
+</div>
+{% endblock %}

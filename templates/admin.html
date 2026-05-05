@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <div class="admin-header">
+    <div>
+      <h1 class="page-title">🛠 Admin Dashboard</h1>
+      <p class="page-sub">Logged in as <strong>{{ admin_user }}</strong></p>
+    </div>
+    <a href="{{ url_for('admin_logout') }}" class="btn-danger">Logout</a>
+  </div>
+
+  <!-- ── Stats bar ── -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <span class="stat-num">{{ reservations | length }}</span>
+      <span class="stat-label">Seats Reserved</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">{{ 48 - (reservations | length) }}</span>
+      <span class="stat-label">Seats Available</span>
+    </div>
+    <div class="stat-card highlight">
+      <span class="stat-num">${{ total_sales }}</span>
+      <span class="stat-label">Total Sales</span>
+    </div>
+  </div>
+
+  <!-- ── Seating Chart ── -->
+  <section class="admin-section">
+    <h2 class="section-heading">Seating Chart</h2>
+    <div class="chart-legend">
+      <span class="legend-dot available"></span> Available
+      <span class="legend-dot taken"></span> Taken
+    </div>
+
+    <div class="seat-grid">
+      <!-- Column headers -->
+      <div class="row-header"></div>
+      {% for col in col_labels %}
+      <div class="col-header">
+        {{ col }}
+        <div class="col-price">${{ cost_matrix[0][loop.index0] }}</div>
+      </div>
+      {% endfor %}
+
+      {% for row in range(12) %}
+        <div class="row-header">{{ row + 1 }}</div>
+        {% for col in range(4) %}
+          {% if (row, col) in taken %}
+            {% set res = taken[(row, col)] %}
+            <div class="seat taken"
+                 title="{{ res.passengerName }} — {{ res.eTicketNumber }}">
+              {{ row+1 }}{{ col_labels[col] }}
+            </div>
+          {% else %}
+            <div class="seat available"
+                 title="Seat {{ row+1 }}{{ col_labels[col] }} — ${{ cost_matrix[row][col] }}">
+              {{ row+1 }}{{ col_labels[col] }}
+            </div>
+          {% endif %}
+          {% if col == 1 %}<div class="aisle"></div>{% endif %}
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- ── Reservation list ── -->
+  <section class="admin-section">
+    <h2 class="section-heading">All Reservations</h2>
+
+    {% if reservations %}
+    <div class="table-wrapper">
+      <table class="res-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Passenger</th>
+            <th>Seat</th>
+            <th>E-Ticket Number</th>
+            <th>Cost</th>
+            <th>Reserved At</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in reservations %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ r.passengerName }}</td>
+            <td><strong>{{ r.seatRow + 1 }}{{ col_labels[r.seatColumn] }}</strong></td>
+            <td class="mono">{{ r.eTicketNumber }}</td>
+            <td>${{ cost_matrix[r.seatRow][r.seatColumn] }}</td>
+            <td>{{ r.created.strftime('%Y-%m-%d %H:%M') if r.created else '—' }}</td>
+            <td>
+              <form method="POST"
+                    action="{{ url_for('delete_reservation', res_id=r.id) }}"
+                    onsubmit="return confirm('Delete reservation for {{ r.passengerName }}?')">
+                <button type="submit" class="btn-danger btn-sm">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" class="tfoot-label">Total Sales</td>
+            <td colspan="3" class="tfoot-total">${{ total_sales }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    {% else %}
+    <p class="empty-msg">No reservations yet.</p>
+    {% endif %}
+  </section>
+
+</div>
+{% endblock %}

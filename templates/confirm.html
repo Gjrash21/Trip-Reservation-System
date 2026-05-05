@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Reservation Confirmed!{% endblock %}
+
+{% block content %}
+<div class="page-container centered">
+  <div class="confirm-card">
+    <div class="confirm-icon">✅</div>
+    <h1 class="confirm-title">You're Booked!</h1>
+    <p class="confirm-sub">Your seat has been reserved. Keep your e-ticket number safe!</p>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span>🚌 Hackathon Bus — E-Ticket</span>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-row">
+          <span class="ticket-label">Passenger</span>
+          <span class="ticket-value">{{ passenger_name }}</span>
+        </div>
+        <div class="ticket-row">
+          <span class="ticket-label">Seat</span>
+          <span class="ticket-value">Row {{ seat_row }}, Column {{ seat_col }}</span>
+        </div>
+        <div class="ticket-row">
+          <span class="ticket-label">Seat Cost</span>
+          <span class="ticket-value">${{ cost }}</span>
+        </div>
+        <div class="ticket-row highlight">
+          <span class="ticket-label">E-Ticket #</span>
+          <span class="ticket-value ticket-code">{{ ticket }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="confirm-actions">
+      <a href="{{ url_for('reserve') }}" class="btn-secondary">Reserve Another Seat</a>
+      <a href="{{ url_for('index') }}" class="btn-primary">Back to Home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

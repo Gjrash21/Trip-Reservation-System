@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Home — Hackathon Trip Reservation{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <div class="hero-card">
+    <h1 class="hero-title">Welcome Aboard! 🎉</h1>
+    <p class="hero-sub">
+      Ready to join the hackathon? Reserve your seat on the bus below,
+      or log in to the admin portal to manage reservations.
+    </p>
+
+    <div class="menu-grid">
+      <a href="{{ url_for('reserve') }}" class="menu-card">
+        <span class="menu-icon">🎫</span>
+        <h2>Reserve a Seat</h2>
+        <p>Choose your seat on the bus and get your e-ticket instantly.</p>
+        <span class="menu-btn">Get My Seat →</span>
+      </a>
+
+      <a href="{{ url_for('admin_login') }}" class="menu-card">
+        <span class="menu-icon">🔒</span>
+        <h2>Admin Login</h2>
+        <p>View the seating chart, total sales, and manage reservations.</p>
+        <span class="menu-btn">Admin Portal →</span>
+      </a>
+    </div>
+
+    <!-- Quick info strip -->
+    <div class="info-strip">
+      <div class="info-item">
+        <span class="info-icon">💺</span>
+        <div>
+          <strong>48 Seats</strong>
+          <span>12 rows × 4 seats</span>
+        </div>
+      </div>
+      <div class="info-item">
+        <span class="info-icon">💰</span>
+        <div>
+          <strong>Seat Pricing</strong>
+          <span>A&amp;D: $100 &nbsp;|&nbsp; B: $75 &nbsp;|&nbsp; C: $50</span>
+        </div>
+      </div>
+      <div class="info-item">
+        <span class="info-icon">🏆</span>
+        <div>
+          <strong>Hackathon</strong>
+          <span>IT Student Trip</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
