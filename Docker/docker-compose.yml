@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   web:
     build: .
@@ -8,9 +7,23 @@ services:
       - "5000:5000"
     volumes:
       - .:/app
-      - sqlite_data:/app/data
     environment:
       - FLASK_ENV=development
 
-volumes:
-  sqlite_data:
+
+# just had to change the path 
+# og just in case:
+# version: '3.8'
+# services:
+  # web:
+    # build: .
+    # container_name: trip_app
+    # ports:
+      # - "5000:5000"
+    # volumes:
+      # - .:/app
+      # - sqlite_data:/app/data
+    # environment:
+      # - FLASK_ENV=development
+# volumes:
+  # sqlite_data:
