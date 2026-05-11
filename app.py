@@ -1,10 +1,18 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+import random
+import string
 app = Flask(__name__)
 app.secret_key = 'secret-key-hehe'
 
 def create_cost_matrix():
-    costs = [100, 75, 50, 100]
-    return [[costs[col] for col in range(4)] for row in range(12)]
+     cost_matrix = [[100, 75, 50, 100] for row in range(12)]
+     return cost_matrix
+
+# random ticket generator 
+def generate_reservation_code(first_name, last_name, seat_row, seat_column):
+    first_last = first_name[0].upper() + last_name[0].upper()
+    randomize = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) 
+    return f"{first_last}{seat_row}{seat_column}-{randomize}"
 
 @app.route('/')
 def index():
@@ -28,28 +36,44 @@ def reserve():
          seat_col = request.form.get('seat_col', '').strip().upper()
 
     # error check
-    if not first_name:
-         errors.append('First name is required.')
-    if not last_name:
-         errors.append('Last name is required.')
+         if not first_name:
+           errors.append('First name is required.')
+         if not last_name:
+          errors.append('Last name is required.')
 
-    if not seat_row:
-         errors.append('Insert a seat row.')
-    if not seat_row >= 1 & seat_row <= 12:
-         errors.append('Choose a valid row option.')
+         if not seat_row:
+          errors.append('Insert a seat row.')
+         else:
+           try:
+               seat_row = int(seat_row)
+               if not (1 <= seat_row <= 12):
+                 errors.append('Choose a valid row option between 1-12.')
+           except ValueError:
+             errors.append('Row must be a number.')
 
-    if not seat_col:
-         errors.append('Insert a seat column.')
-    if not seat_col == ['A', 'B', 'C', 'D']:
-         errors.append('Choose valid seat option.')
+         if not seat_col:
+          errors.append('Insert a seat column.')
+         elif seat_col not in ['A', 'B', 'C', 'D']:
+          errors.append('Column must be between A-D.')
     
-    if errors:
-         return render_template('reserve.html',
+         if errors:
+          return render_template('reserve.html',
                            errors=errors,
                            taken={},
                            cost_matrix=cost_matrix,
                            col_labels=col_labels,
                            form=request.form)
+    
+         ticket = generate_reservation_code(first_name, last_name, seat_row, seat_col)
+         cost = cost_matrix[seat_row - 1][col_labels.index(seat_col)]
+
+         return redirect(url_for('confirm',
+                            passenger_name=f"{first_name} {last_name}",
+                            seat_row=seat_row,
+                            seat_col=seat_col,
+                            ticket=ticket,
+                            cost=cost
+                            ))
 
 
 
@@ -109,7 +133,20 @@ def admin_logout():
 
 @app.route('/delete/<int:res_id>', methods=['POST'])
 def delete_reservation(res_id):
+    if not session.get('admin'):
+        return redirect(url_for('admin_login'))
+    
+    
     return redirect(url_for('admin_dashboard'))
+    
+@app.route('/confirm')
+def confirm():
+     return render_template('confirm.html',
+                            passenger_name=request.args.get('passenger_name'),
+                            seat_row=request.args.get('seat_row'),
+                            seat_col=request.args.get('seat_col'),
+                            ticket=request.args.get('ticket'),
+                            cost=request.args.get('cost'))
 
 if __name__ == '__main__':
     app.run(debug=True)
